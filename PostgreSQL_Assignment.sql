@@ -11,6 +11,7 @@ CREATE TABLE rangers (
     name VARCHAR(50) NOT NULL,
     region VARCHAR(50) NOT NUll
 );
+DROP TABLE rangers;
 -- INSERT INTO rangers(name, region) VALUES
 ('Alice Green', 'Northern Hills'),
 ('Bob White', 'River Delta'),
@@ -27,6 +28,7 @@ CREATE TABLE species(
     discovery_date DATE DEFAULT CURRENT_DATE,
     conservation_status VARCHAR(50) CHECK(conservation_status = 'Endangered' OR conservation_status = 'Vulnerable')
 );
+-- DROP TABLE species;
 SELECT * from species;
 -- INSERT INTO species(common_name, scientific_name, discovery_date, conservation_status) VALUES
 ('Snow Leopard', 'Panthera uncia', '1775-01-01', 'Endangered'),
@@ -45,9 +47,9 @@ CREATE TABLE sightings(
     location VARCHAR(50),
     notes VARCHAR(100)
 );
+DROP TABLE sightings;
 SELECT * FROM sightings;
--- DROP TABLE sightings;
--- INSERT INTO sightings (species_id, ranger_id, location, sighting_time, notes)
+INSERT INTO sightings (species_id, ranger_id, location, sighting_time, notes)
 VALUES
     (1, 1, 'Peak Ridge', '2024-05-10 07:45:00', 'Camera trap image captured'),
     (2, 2, 'Bankwood Area', '2024-05-12 16:20:00', 'Juvenile seen'),
@@ -110,13 +112,41 @@ SELECT common_name, sighting_time, name FROM species
 
 -- Problem 7: Update all species discovered before year 1800 to have status 'Historic'.
 -- Problem 7: Update all species discovered before year 1800 to have status 'Historic'.
-ALTER TABLE species
-DROP CONSTRAINT species_conservation_status_check;
+CREATE OR REPLACE FUNCTION update_conservation_status()
+RETURNS void AS
+$$
+BEGIN
+    -- Drop the CONSTRAINT ofspecies_conservation
+    ALTER TABLE species
+        DROP CONSTRAINT IF EXISTS species_conservation_status_check;
 
-ALTER TABLE species
-ADD CONSTRAINT species_conservation_status_check
-CHECK (conservation_status IN ('Endangered', 'Vulnerable', 'Historic'));
+    -- Add new check CONSTRAINT ofspecies_conservation
+    ALTER TABLE species
+        ADD CONSTRAINT species_conservation_status_check
+        CHECK (conservation_status IN('Endangered', 'Vulnerable', 'Historic'));
+
+    -- Update the conservation_status
+    UPDATE species 
+        SET conservation_status = 'Historic' 
+            WHERE species.discovery_date < DATE '1800-01-01';
+END;
+$$
+LANGUAGE plpgsql;
+
+-- run the function for replace conservation_status
+SELECT update_conservation_status();
 
 
-UPDATE species SET  conservation_status = 'Historic' WHERE  species.discovery_date < DATE '1800-01-01';
--- SELECT * FROM species  WHERE  species.discovery_date < DATE '1800-01-01';
+
+-- Problem 8: Label each sighting's time of day as 'Morning', 'Afternoon', or 'Evening'.
+-- Problem 8: Label each sighting's time of day as 'Morning', 'Afternoon', or 'Evening'.
+SELECT sighting_id,
+     CASE
+        WHEN sighting_time::TIMESTAMP::TIME < TIME '12:00:00' THEN 'Morning'
+        WHEN sighting_time::TIMESTAMP::TIME BETWEEN TIME '12:00:00' AND TIME '17:00:00' THEN 'Afternoon'
+        WHEN sighting_time::TIMESTAMP::TIME > TIME '17:00:00' THEN 'Evening'
+    END AS time_of_day
+FROM sightings;
+
+
+-- Problem 8: Label each sighting's time of day as 'Morning', 'Afternoon', or 'Evening'.
