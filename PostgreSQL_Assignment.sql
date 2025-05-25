@@ -100,7 +100,23 @@ SELECT common_name FROM species
 
 
 -- Problem 6: Show the most recent 2 sightings.
+-- Problem 6: Show the most recent 2 sightings.
 SELECT common_name, sighting_time, name FROM species
     JOIN sightings ON species.species_id = sightings.species_id
     JOIN rangers ON rangers.ranger_id = sightings.ranger_id
     ORDER BY sightings.sighting_time DESC LIMIT 2;
+
+
+
+-- Problem 7: Update all species discovered before year 1800 to have status 'Historic'.
+-- Problem 7: Update all species discovered before year 1800 to have status 'Historic'.
+ALTER TABLE species
+DROP CONSTRAINT species_conservation_status_check;
+
+ALTER TABLE species
+ADD CONSTRAINT species_conservation_status_check
+CHECK (conservation_status IN ('Endangered', 'Vulnerable', 'Historic'));
+
+
+UPDATE species SET  conservation_status = 'Historic' WHERE  species.discovery_date < DATE '1800-01-01';
+-- SELECT * FROM species  WHERE  species.discovery_date < DATE '1800-01-01';
