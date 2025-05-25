@@ -158,5 +158,3 @@ DELETE FROM rangers r
         FROM sightings s
         WHERE s.ranger_id = r.ranger_id
     );
-
-
