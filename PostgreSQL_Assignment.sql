@@ -12,7 +12,7 @@ CREATE TABLE rangers (
     region VARCHAR(50) NOT NUll
 );
 DROP TABLE rangers;
--- INSERT INTO rangers(name, region) VALUES
+INSERT INTO rangers(name, region) VALUES
 ('Alice Green', 'Northern Hills'),
 ('Bob White', 'River Delta'),
 ('Carol King', 'Mountain Range');
@@ -28,9 +28,9 @@ CREATE TABLE species(
     discovery_date DATE DEFAULT CURRENT_DATE,
     conservation_status VARCHAR(50) CHECK(conservation_status = 'Endangered' OR conservation_status = 'Vulnerable')
 );
--- DROP TABLE species;
+DROP TABLE species;
 SELECT * from species;
--- INSERT INTO species(common_name, scientific_name, discovery_date, conservation_status) VALUES
+INSERT INTO species(common_name, scientific_name, discovery_date, conservation_status) VALUES
 ('Snow Leopard', 'Panthera uncia', '1775-01-01', 'Endangered'),
 ('Bengal Tiger', 'Panthera tigris tigris', '1758-01-01', 'Endangered'),
 ('Red Panda', 'Ailurus fulgens', '1825-01-01', 'Vulnerable'),
@@ -149,4 +149,14 @@ SELECT sighting_id,
 FROM sightings;
 
 
--- Problem 8: Label each sighting's time of day as 'Morning', 'Afternoon', or 'Evening'.
+
+-- Problem 9: Delete rangers who have never sighted any species
+-- Problem 9: Delete rangers who have never sighted any species
+DELETE FROM rangers r
+    WHERE NOT EXISTS(
+        SELECT 1
+        FROM sightings s
+        WHERE s.ranger_id = r.ranger_id
+    );
+
+
