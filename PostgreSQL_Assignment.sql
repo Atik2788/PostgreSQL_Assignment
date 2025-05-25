@@ -11,7 +11,7 @@ CREATE TABLE rangers (
     name VARCHAR(50) NOT NULL,
     region VARCHAR(50) NOT NUll
 );
-INSERT INTO rangers(name, region) VALUES
+-- INSERT INTO rangers(name, region) VALUES
 ('Alice Green', 'Northern Hills'),
 ('Bob White', 'River Delta'),
 ('Carol King', 'Mountain Range');
@@ -28,7 +28,7 @@ CREATE TABLE species(
     conservation_status VARCHAR(50) CHECK(conservation_status = 'Endangered' OR conservation_status = 'Vulnerable')
 );
 SELECT * from species;
-INSERT INTO species(common_name, scientific_name, discovery_date, conservation_status) VALUES
+-- INSERT INTO species(common_name, scientific_name, discovery_date, conservation_status) VALUES
 ('Snow Leopard', 'Panthera uncia', '1775-01-01', 'Endangered'),
 ('Bengal Tiger', 'Panthera tigris tigris', '1758-01-01', 'Endangered'),
 ('Red Panda', 'Ailurus fulgens', '1825-01-01', 'Vulnerable'),
@@ -41,12 +41,13 @@ CREATE TABLE sightings(
     sighting_id SERIAL PRIMARY KEY,
     ranger_id INT REFERENCES rangers(ranger_id),
     species_id INT REFERENCES species(species_id),
-    sighting_time DATE,
+    sighting_time TIMESTAMP NOT NULL,
     location VARCHAR(50),
     notes VARCHAR(100)
 );
 SELECT * FROM sightings;
-INSERT INTO sightings (species_id, ranger_id, location, sighting_time, notes)
+-- DROP TABLE sightings;
+-- INSERT INTO sightings (species_id, ranger_id, location, sighting_time, notes)
 VALUES
     (1, 1, 'Peak Ridge', '2024-05-10 07:45:00', 'Camera trap image captured'),
     (2, 2, 'Bankwood Area', '2024-05-12 16:20:00', 'Juvenile seen'),
@@ -99,3 +100,7 @@ SELECT common_name FROM species
 
 
 -- Problem 6: Show the most recent 2 sightings.
+SELECT common_name, sighting_time, name FROM species
+    JOIN sightings ON species.species_id = sightings.species_id
+    JOIN rangers ON rangers.ranger_id = sightings.ranger_id
+    ORDER BY sightings.sighting_time DESC LIMIT 2;
